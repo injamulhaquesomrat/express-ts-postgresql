@@ -109,7 +109,6 @@ app.get("/users/:id", async (req: Request, res: Response) => {
         `,
       [req.params.id]
     );
-    console.log(result.rows);
 
     if (result.rows.length === 0) {
       res.status(404).json({
@@ -153,6 +152,28 @@ app.put("/users/:id", async (req: Request, res: Response) => {
         data: result.rows[0],
       });
     }
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+app.delete("/users/:id", async (req: Request, res: Response) => {
+  try {
+    const result = await pool.query(
+      `
+        DELETE FROM users WHERE id = $1
+        `,
+      [req.params.id]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "User deleted successfully",
+      data: result.rows[0],
+    });
   } catch (error: any) {
     res.status(500).json({
       success: false,
