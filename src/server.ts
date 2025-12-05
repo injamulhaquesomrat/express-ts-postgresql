@@ -51,15 +51,35 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello World of Somrat");
 });
 
-app.post("/", (req: Request, res: Response) => {
-  console.log(req.body);
+app.post("/users", async (req: Request, res: Response) => {
+  const { name, email, age } = req.body;
 
-  res.status(201).json({
-    success: true,
-    message: "API is working",
-  });
+  try {
+    const result = await pool.query(
+      `
+        INSERT INTO users(
+        name,
+        email,
+        age
+        ) 
+        VALUES($1, $2, $3) RETURNING *
+        `,
+      [name, email, age]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "Data Inserted Successfully",
+      data: result.rows[0],
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`My app listening on port ${port}`);
 });
